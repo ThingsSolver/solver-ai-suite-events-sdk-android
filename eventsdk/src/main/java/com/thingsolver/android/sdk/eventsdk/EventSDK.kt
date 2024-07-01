@@ -2,6 +2,7 @@ package com.thingsolver.android.sdk.eventsdk
 
 import android.content.Context
 import com.thingsolver.android.sdk.eventsdk.internal.EventManager
+import com.thingsolver.android.sdk.eventsdk.model.Authentication
 import com.thingsolver.android.sdk.eventsdk.model.CollectionData
 
 object EventSDK {
@@ -11,8 +12,8 @@ object EventSDK {
      * @param context Application context.
      * @param config Configuration object.
      */
-    fun initialize(context: Context, config: Config) {
-        EventManager.start(context, config)
+    fun initialize(context: Context, authentication: Authentication, config: Config) {
+        EventManager.start(context, authentication, config)
     }
 
     /**

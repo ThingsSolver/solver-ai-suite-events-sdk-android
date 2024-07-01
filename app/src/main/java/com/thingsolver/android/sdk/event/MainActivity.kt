@@ -7,12 +7,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.thingsolver.android.sdk.eventsdk.Config
 import com.thingsolver.android.sdk.eventsdk.EventSDK
 import com.thingsolver.android.sdk.eventsdk.model.CollectionData
 import com.thingsolver.android.sdk.eventsdk.model.Event
 import com.thingsolver.android.sdk.event.databinding.ActivityMainBinding
+import com.thingsolver.android.sdk.eventsdk.model.Authentication
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -39,7 +39,9 @@ class MainActivity : AppCompatActivity() {
                 .setAnchorView(R.id.fab).show()
         }
 
-        EventSDK.initialize(this, Config("dev", "https://test-events.thingsolver.com", "4X47GtP8ne4Jo0qD8XQSf7M0LVUP56lr7K8IlAb6", 100, 20_000))
+        val authentication = Authentication.AuthenticationApiKey("4X47GtP8ne4Jo0qD8XQSf7M0LVUP56lr7K8IlAb6")
+
+        EventSDK.initialize(this, authentication, Config("dev", "https://test-events.thingsolver.com", 100, 20_000))
 
         lifecycleScope.launch {
             var i = 0

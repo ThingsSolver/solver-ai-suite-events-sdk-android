@@ -4,37 +4,45 @@ EventSDK is a lightweight and easy-to-use Android library that simplifies the pr
 
 ## Features
 
- - Seamless Integration: Easily integrate the SDK into your Android project with minimal setup.
+- Seamless Integration: Easily integrate the SDK into your Android project with minimal setup.
 
- - Custom Event Tracking: Track any type of event with predefined or custom parameters to capture rich data.
+- Custom Event Tracking: Track any type of event with predefined or custom parameters to capture rich data.
 
- - Batching and Offline Support: Events are batched and stored locally, ensuring data is collected even when the device is offline.
+- Batching and Offline Support: Events are batched and stored locally, ensuring data is collected even when the device is offline.
 
- - Lightweight and Efficient: Minimal impact on your app's performance.
+- Lightweight and Efficient: Minimal impact on your app's performance.
 
 ## Requirements
 
- - minSdk 21
+- minSdk 21
 
- - CompileSdk 34 or greater
+- CompileSdk 34 or greater
 
- - Kotlin 1.9.0 or greater
+- Kotlin 1.9.0 or greater
 
 ## External libraries used
 
- - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2
+- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2
 
- - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2
+- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2
 
- - com.squareup.retrofit2:retrofit:2.11.0
+- com.squareup.retrofit2:retrofit:2.11.0
 
- - com.squareup.retrofit2:converter-gson:2.11.0
+- com.squareup.retrofit2:converter-gson:2.11.0
+
+If you don't already have these libraries added to your project, you can add them by adding the following lines to your app build.gradle file:
+```kotlin
+implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+implementation("com.squareup.retrofit2:retrofit:2.11.0")
+implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+```
 
 ## Usage
 
 ### Initialization
 
-EventSDK should be initialized first, by calling the method initialize(Context, Config) in the Application onCreate() method, e.g.
+EventSDK should be initialized first, by calling the method initialize(Context, Authentication, Config) in the Application onCreate() method, e.g.
 
 ```kotlin
 class MyApplication : Application() {
@@ -42,8 +50,9 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val myConfig = Config("dev", "https://myeventserver.com", "my-api-key")
-        EventSDK.initialize(this, myConfig, 100, 3 * 60 * 1000, 30 * 60 * 1000)
+        val authentication = AuthenticationApiKey("my-api-key")
+        val myConfig = Config("dev", "https://myeventserver.com")
+        EventSDK.initialize(this, authentication, myConfig, 100, 3 * 60 * 1000, 30 * 60 * 1000)
     }
 
 }
@@ -54,21 +63,45 @@ Config represents the object that contains the configuration data:
 data class Config(
     val tenantID: String,
     val baseUrl: String,
-    val apiKey: String,
     val numberOfMaxEventsCollectedBeforeSending: Int = Defaults.DEFAULT_NUMBER_OF_MAX_EVENTS_COLLECTED_BEFORE_SENDING,
     val eventSendInterval: Long = Defaults.DEFAULT_EVENT_SEND_INTERVAL,
     val sessionIdRegenerateTimeInterval: Long = Defaults.DEFAULT_SESSION_ID_REGENERATE_TIME_INTERVAL
 )
 ```
 
- - `tenantID` - The tenant identifier
- - `baseUrl` - The base URL for the API
- - `apiKey` - The API key used for authentication
- - `numberOfMaxEventsCollectedBeforeSending` - Number of max events collected before sending. Optional, default value is 30
- - `eventSendInterval` - Event send interval in milliseconds. Optional, default value is 3 minutes
- - `sessionIdRegenerateTimeInterval` - Session ID regenerate time interval in milliseconds. Optional, default value is 30 minutes
+- `tenantID` - The tenant identifier
+- `baseUrl` - The base URL for the API
+- `apiKey` - The API key used for authentication
+- `numberOfMaxEventsCollectedBeforeSending` - Number of max events collected before sending. Optional, default value is 30
+- `eventSendInterval` - Event send interval in milliseconds. Optional, default value is 3 minutes
+- `sessionIdRegenerateTimeInterval` - Session ID regenerate time interval in milliseconds. Optional, default value is 30 minutes
 
+Authentication is a sealed class which object should hold the authentication data. There are two types of Authentication: AuthenticationApiKey and AuthenticationBearerToken:
 
+AuthenticationApiKey:
+```kotlin
+    /**
+     * Class that represents authentication by API key.
+     * @param apiKey API key used for authentication.
+     */
+    class AuthenticationApiKey(val apiKey: String) : Authentication()
+```
+- `apiKey` - API key used for authentication.
+
+AuthenticationBearerToken:
+```kotlin
+    /**
+     * Class that represents authentication by Bearer token.
+     * @param userName User name used for fetching bearer token.
+     * @param password Password used for fetching bearer token.
+     * @param authUrl URL used for authentication.
+     */
+    class AuthenticationBearerToken(val userName: String, val password: String, val authUrl: String) :
+        Authentication()
+```
+- `userName` - User name used for fetching bearer token.
+- `password` - Password used for fetching bearer token.
+- `authUrl` - URL used for authentication.
 ### Event tracking
 
 To track an event, call the method EventSDK.collect(CollectionData), e.g.
@@ -109,29 +142,29 @@ open class CollectionData(
     val lon: Double?
 )
 ```
- - `deviceToken` - The device token associated with the user device.
+- `deviceToken` - The device token associated with the user device.
 
- - `customerId` - The customer ID associated with the user.
+- `customerId` - The customer ID associated with the user.
 
- - `loginStatus` - Whether the user is logged in or not.
+- `loginStatus` - Whether the user is logged in or not.
 
- - `pageType` - The type of page the user is on.
+- `pageType` - The type of page the user is on.
 
- - `pageName` - The name of the page the user is on.
+- `pageName` - The name of the page the user is on.
 
- - `event` - Type of the event. It can have one of the predefined values from the Event class, or a custom one.
+- `event` - Type of the event. It can have one of the predefined values from the Event class, or a custom one.
 
- - `eventValue` - The value of the event.
+- `eventValue` - The value of the event.
 
- - `eventArguments` - Additional arguments for the event.
+- `eventArguments` - Additional arguments for the event.
 
- - `language` - The language the user is using.
+- `language` - The language the user is using.
 
- - `lat` - The latitude of the user's location.
+- `lat` - The latitude of the user's location.
 
- - `lon` - The longitude of the user's location.
+- `lon` - The longitude of the user's location.
 
- Event is the class that contains predefined event constants:
+Event is the class that contains predefined event constants:
 
 ```kotlin
  package com.thingsolver.android.sdk.eventsdk.model
@@ -232,7 +265,7 @@ EventSDK.generateSessionId()
 ```
 
 ###Opt-Out control
-To enable/disable event data collection, call the method 
+To enable/disable event data collection, call the method
 ```kotlin
 EventSDK.setOptOut(optOut: Boolean)
 ```

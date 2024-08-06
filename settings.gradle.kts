@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "analytics-sdk"
+rootProject.name = "events-sdk"
 include(":app")
 include(":eventsdk")

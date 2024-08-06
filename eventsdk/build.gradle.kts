@@ -6,7 +6,7 @@ plugins {
     `maven-publish`
 }
 
-val VERSION_NAME = "1.0.0"
+val VERSION_NAME = "1.0.1"
 val VERSION_CODE = 1
 
 android {
